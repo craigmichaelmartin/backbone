@@ -378,6 +378,7 @@
       <li>– <a href="#Collection-extend">extend</a></li>
       <li>– <a href="#Collection-model">model</a></li>
       <li>– <a href="#Collection-modelId">modelId</a></li>
+      <li>– <a href="#Collection-modelIdAttribute">modelIdAttribute</a></li>
       <li>– <a href="#Collection-constructor">constructor / initialize</a></li>
       <li>– <a href="#Collection-models">models</a></li>
       <li>– <a href="#Collection-toJSON">toJSON</a></li>
@@ -1777,19 +1778,10 @@ var Library = Backbone.Collection.extend({
     <p id="Collection-modelId">
       <b class="header">modelId</b><code>collection.modelId(attrs)</code>
       <br />
-      Override this method to return the value the collection will use to
-      identify a model given its attributes. Useful for combining models from
-      multiple tables with different <a href="#Model-idAttribute"><tt>idAttribute</tt></a>
-      values into a single collection.
-    </p>
-
-    <p>
-      By default returns the value of the attributes'
-      <a href="#Model-idAttribute"><tt>idAttribute</tt></a>
-      from the collection's model class or failing that, <tt>id</tt>. If
-      your collection uses a <a href="#Collection-model">model factory</a> and
-      those models have an <tt>idAttribute</tt> other than <tt>id</tt> you must
-      override this method.
+      Returns the value by which a model in the collection is uniquely identified.
+      Overriding this method is useful for combining models from multiple tables
+      with different <a href="#Model-idAttribute"><tt>idAttribute</tt></a> values
+      into a single collection.
     </p>
 
 <pre class="runnable">
@@ -1810,6 +1802,44 @@ var library = new Library([
 
 alert('dvd: ' + library.get('dvd1').id + ', vhs: ' + library.get('vhs1').id);
 
+</pre>
+
+    <p id="Collection-modelIdAttribute">
+      <b class="header">modelIdAttribute</b><code>collection.modelIdAttribute</code>
+      <br />
+      Returns the key by which models in the collection are uniquely identified.
+      <tt>modelIdAttribute</tt> may be defined as a function or string.
+
+      The default value is the <a href="#Collection-model">Collection model</a>'s
+      <a href="#Model-idAttribute"><tt>idAttribute</tt></a>, or failing that
+      (eg, in the case of a <a href="#Collection-model">model factory</a>
+      the default id attribute, <tt>id</tt>.
+    </p>
+
+    <p>
+      If your collection uses a
+      <a href="#Collection-model">model factory</a> and those models
+      have an <tt>idAttribute</tt> other than <tt>id</tt> you must
+      override this method.
+    </p>
+
+<pre class="runnable">
+      var Book = Backbone.Model.extend({
+        idAttribute: '_id'
+      });
+      var Magazine = Backbone.Model.extend({
+        idAttribute: '_id'
+      });
+      var Library = Backbone.Collection.extend({
+        modelIdAttribute: '_id',
+        model: function(attrs) {
+          return attrs.type === 'book'
+            ? new Book(attrs)
+            : new Magazine(attrs);
+        }
+      });
+      var library = new Library({'type': 'book', '_id': 1});
+      alert('The first item is a ' + library.get(1).get('type'));
 </pre>
 
     <p id="Collection-constructor">
